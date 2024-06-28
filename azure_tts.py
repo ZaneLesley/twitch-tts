@@ -71,7 +71,7 @@ class AzureTTSManager:
             voice_style = random.choice(AZURE_VOICE_STYLES)
 
         text = f"{user} said {text}"
-       
+    
         # The neural multilingual voice can speak different languages based on the input text. 
         ssml_text = f"<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xmlns:emo='http://www.w3.org/2009/10/emotionml' xml:lang='en-US'><voice name='{voice_name}'><mstts:express-as style='{voice_style}'>{text}</mstts:express-as></voice></speak>"
 
