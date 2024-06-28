@@ -7,8 +7,27 @@ from twitchio.ext import commands
 import sys
 from pynput import keyboard
 import threading
+from flask import Flask, render_template, session, request
+from flask_socketio import SocketIO, emit
+import asyncio
 
+# Global Variables
 tts_toggle = True
+
+#########################
+#       Socket IO       #
+#########################
+app = Flask(__name__)
+socketio = SocketIO(app, async_mode ="threading")
+
+@app.route("/")
+def index():
+    return render_template('index.html')
+
+@socketio.event
+def connect(): #when socket connects, send data confirming connection
+    print("connected")
+
 
 class Bot(commands.Bot):
     def __init__(self):
@@ -20,7 +39,7 @@ class Bot(commands.Bot):
     async def event_message(self, message):
         if message.author is not None:
             print(message.author.name, message.content)
-            if tts_toggle:
+            if tts_toggle and not message.content.startswith('!'):
                 AzureTTSManager.text_to_speech(message.content, message.author.name)
             await self.handle_commands(message)
 
@@ -64,11 +83,11 @@ def start_listener():
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
         listener.join()
 
-
-def main():
-    load_dotenv()
+def start_bot():
+    global bot
     sys.stdout.reconfigure(line_buffering=True)         # Load script with print('', flush=True)
     sys.stdout.reconfigure(encoding='utf-8')            # Use utf-8 encoding
+    asyncio.set_event_loop(asyncio.new_event_loop())
     bot = Bot()
     bot.run()
 
@@ -88,11 +107,15 @@ def setup_system_tray():
 
 if __name__ == '__main__':
     ## System Tray handling (optional)
-    # tray_thread = threading.Thread(target=setup_system_tray)
-    # tray_thread.start()
+    tray_thread = threading.Thread(target=setup_system_tray)
+    tray_thread.start()
 
     ## Keyboard Reading (optional)
     # keyboard_thread = threading.Thread(target=start_listener)
     # keyboard_thread.start()
-    main()
+    
+    load_dotenv()
+    bot_thread = threading.Thread(target=start_bot)
+    bot_thread.start()
+    socketio.run(app, allow_unsafe_werkzeug=True, port=8000)
     
