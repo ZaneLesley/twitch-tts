@@ -48,7 +48,8 @@ class AzureTTSManager:
     def text_to_speech(text: str, user: str, voice_name = "random", voice_style = "random"):
         # This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
         speech_config = speechsdk.SpeechConfig(subscription=os.environ.get('SPEECH_KEY'), region=os.environ.get('SPEECH_REGION'))
-        audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=True)
+        # Use get_device_id.py to get speaker output (use use_default_speaker = True for default output)
+        audio_config = speechsdk.audio.AudioOutputConfig(device_name="{0.0.0.00000000}.{13b837f7-8963-40f2-b13d-53a2905210a3}")     
         
         if voice_name == "random":
             voice_name = random.choice(AZURE_VOICES)
@@ -70,7 +71,7 @@ class AzureTTSManager:
         if voice_style == "random":
             voice_style = random.choice(AZURE_VOICE_STYLES)
 
-        text = f"{user} said {text}"
+        # text = f"{user} said {text}"
     
         # The neural multilingual voice can speak different languages based on the input text. 
         ssml_text = f"<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xmlns:emo='http://www.w3.org/2009/10/emotionml' xml:lang='en-US'><voice name='{voice_name}'><mstts:express-as style='{voice_style}'>{text}</mstts:express-as></voice></speak>"

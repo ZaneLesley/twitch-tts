@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import pystray          # type: ignore
 import PIL.Image        # type: ignore
 from azure_tts import AzureTTSManager
+from obs_socket import OBSSocketManager
 from twitchio.ext import commands
 import sys
 from pynput import keyboard
@@ -10,6 +11,7 @@ import threading
 from flask import Flask, render_template, session, request
 from flask_socketio import SocketIO, emit
 import asyncio
+from time import sleep
 
 # Global Variables
 tts_toggle = True
@@ -19,6 +21,7 @@ tts_toggle = True
 #########################
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode ="threading")
+obs_manager = OBSSocketManager()
 
 @app.route("/")
 def index():
@@ -40,6 +43,7 @@ class Bot(commands.Bot):
         if message.author is not None:
             print(message.author.name, message.content)
             if tts_toggle and not message.content.startswith('!'):
+                obs_manager.set_text(source_name="weinerText", new_text=message.content)
                 AzureTTSManager.text_to_speech(message.content, message.author.name)
             await self.handle_commands(message)
 
@@ -108,6 +112,7 @@ def setup_system_tray():
 if __name__ == '__main__':
     ## System Tray handling (optional)
     tray_thread = threading.Thread(target=setup_system_tray)
+    tray_thread.name = 'system_tray'
     tray_thread.start()
 
     ## Keyboard Reading (optional)
@@ -116,6 +121,7 @@ if __name__ == '__main__':
     
     load_dotenv()
     bot_thread = threading.Thread(target=start_bot)
+    bot_thread.name = 'bot'
     bot_thread.start()
     socketio.run(app, allow_unsafe_werkzeug=True, port=8000)
     
