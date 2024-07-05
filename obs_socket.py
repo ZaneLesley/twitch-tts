@@ -13,7 +13,8 @@ class OBSSocketManager:
             self.ws.connect()
             print("Successfully connected to OBS")
         except Exception as e:
-            print(e)
+            raise
+
 
     def disconnect(self):
         self.ws.disconnect()
