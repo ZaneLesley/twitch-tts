@@ -1,13 +1,13 @@
 import time
 import keyboard
 from rich import print
-import re
 from azure_stt import AzureTTSManager
 from openAI_connector import OpenAiManager
 from obs_socket import OBSSocketManager
 from elevenlabs_connector import ElevenLabsManager
 from audio_manager import AudioManager
 
+# My Own Language Exchange Function. Message me for more information if you neeed help with this. (This is gitignored)
 from language_exchange import replace_words
 
 ELEVENLABS_VOICE = "Zane GR"
@@ -15,35 +15,35 @@ ELEVENLABS_VOICE = "Zane GR"
 BACKUP_FILE = "CharacterHistoryBackup.txt"
 
 try:
-    print("[purple]Trying to connect to Azure TTS Manager")
+    print("[yellow]Trying to connect to Azure TTS Manager")
     azure_stt_manager = AzureTTSManager()
     print("[green]Connected to Azure TTS Manager")
 except Exception as e:
     print(f"[red]Couldn't connect to Azure TTS Manager: {e}")
 
 try:
-    print("[purple]Trying to connect to OBS Socket Manager")
+    print("[yellow]Trying to connect to OBS Socket Manager")
     obs_manager = OBSSocketManager()
     print("[green]Connected to OBS Socket Manager")
 except Exception as e:
     print(f"[red]Couldn't connect to OBS Socket Manager: {e}")
 
 try:
-    print("[purple]Trying to connect to OpenAI Manager")
+    print("[yellow]Trying to connect to OpenAI Manager")
     openAI_manager = OpenAiManager()
     print("[green]Connected to OpenAI Manager")
 except Exception as e:
     print(f"[red]Couldn't connect to OpenAI Manager: {e}")
 
 try:
-    print("[purple]Trying to connect to Audio Manager")
+    print("[yellow]Trying to connect to Audio Manager")
     audio_player = AudioManager()
     print("[green]Connected to Audio Manager")
 except Exception as e:
     print(f"[red]Couldn't connect to Audio Manager: {e}")
 
 try:
-    print("[purple]Trying to connect to ElevenLabs Manager")
+    print("[yellow]Trying to connect to ElevenLabs Manager")
     elevenlabs_manager = ElevenLabsManager()
     print("[green]Connected to ElevenLabs Manager")
 except Exception as e:
@@ -91,10 +91,13 @@ while True:
     chatgpt_result = openAI_manager.chat_with_history(mic_result)
 
     with open(BACKUP_FILE, "w") as file:
-        file.write(str(openAI_manager.chat_with_history))
+        file.write(str(openAI_manager.chat_history))
 
     # Perform replacements (peforms replacement of words, utility function)
-    chatgpt_result = replace_words(chatgpt_result)
+    try:
+        chatgpt_result = replace_words(chatgpt_result)
+    except:
+        pass
         
     voice_output = elevenlabs_manager.text_to_audio(chatgpt_result, ELEVENLABS_VOICE, False)
 

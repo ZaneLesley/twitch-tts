@@ -44,7 +44,7 @@ class OpenAiManager():
         if num_tokens_from_messages(chat_question) > 8000:
             print("[red] Number of tokens in chat message too long")
         
-        print("[purple] questions being asked...")
+        print("[yellow] questions being asked...")
         completion = self.client.chat.completions.create(model="gpt-4o", messages=chat_question)
 
         response = completion.choices[0].message.content
@@ -53,7 +53,7 @@ class OpenAiManager():
     
     def chat_with_history(self, prompt=""):
         if not prompt:
-            print("[purple]No Input")
+            print("[yellow]No Input")
             return
         
         self.chat_history.append({"role" : "user", "content" : prompt})
@@ -62,7 +62,7 @@ class OpenAiManager():
             self.chat_history.pop(1)    # Skip System Message
             print(f"[purple] Removed first message from the chat history, new length is {num_tokens_from_messages(self.chat_history)}")
         
-        print("[purple] Asking a question...")
+        print("[yellow] Asking a question...")
         completion = self.client.chat.completions.create(model="gpt-4o", messages=self.chat_history)
         self.chat_history.append({"role" : completion.choices[0].message.role, "content" : completion.choices[0].message.content})
 
